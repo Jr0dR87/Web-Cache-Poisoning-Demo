@@ -1,0 +1,20 @@
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=STATIC:10m inactive=2m use_temp_path=off;
+
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8888;  # <-- Your web server IP
+
+        proxy_cache STATIC;
+        proxy_cache_key "$scheme$host$uri";
+        proxy_cache_valid 200 2m;
+        proxy_cache_use_stale error timeout updating;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+}
